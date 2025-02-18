@@ -1,0 +1,10 @@
+{
+  "name": "sample-ecs-blue-green-github-actions",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node src/main.js"
+  },
+  "devDependencies": {
+    "prettier": "3.5.1"
+  }
+}
