@@ -25,8 +25,7 @@ jobs:
 
       - name: install dependencies
         run: npm ci
-        with:
-          working-directory: ./cdk
+        working-directory: ./cdk
 
       - name: cdk deploy
         run: npm run cdk:deploy:dev -- --require-approval never
