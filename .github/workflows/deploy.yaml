@@ -35,4 +35,5 @@ jobs:
           aws deploy create-deployment \
             --application-name s-ecs-blue-green-ga-dev-application \
             --deployment-group-name s-ecs-blue-green-ga-dev-deployment-group \
-            --deployment-config-name s-ecs-blue-green-ga-dev-deployment-config
+            --deployment-config-name s-ecs-blue-green-ga-dev-deployment-config \
+            --github-location repository=${{github.repository}},commitId=${{github.sha}}
