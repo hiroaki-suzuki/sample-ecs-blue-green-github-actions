@@ -33,6 +33,6 @@ jobs:
       - name: CodeDeployでデプロイ開始
         run: |
           aws deploy create-deployment \
-            --application-name s-ecs-blue-green-ga-application \
-            --deployment-group-name s-ecs-blue-green-ga-deployment-group \
-            --deployment-config-name s-ecs-blue-green-ga-deployment-config
+            --application-name s-ecs-blue-green-ga-dev-application \
+            --deployment-group-name s-ecs-blue-green-ga-dev-deployment-group \
+            --deployment-config-name s-ecs-blue-green-ga-dev-deployment-config
