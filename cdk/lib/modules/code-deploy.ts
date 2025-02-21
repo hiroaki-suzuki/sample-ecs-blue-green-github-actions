@@ -1,6 +1,11 @@
 import { EnvValues } from "./env/env-values";
 import { Construct } from "constructs";
-import { EcsApplication, EcsDeploymentGroup } from "aws-cdk-lib/aws-codedeploy";
+import {
+  EcsApplication,
+  EcsDeploymentConfig,
+  EcsDeploymentGroup,
+  TimeBasedCanaryTrafficRouting,
+} from "aws-cdk-lib/aws-codedeploy";
 import { FargateService } from "aws-cdk-lib/aws-ecs";
 import {
   ApplicationListener,
@@ -41,18 +46,27 @@ export class EcsCodeDeploy extends Construct {
     const application = new EcsApplication(this, "Application", {
       applicationName: `${namePrefix}-application`,
     });
+    const deploymentConfig = new EcsDeploymentConfig(this, "DeploymentConfig", {
+      deploymentConfigName: `${namePrefix}-deployment-config`,
+      trafficRouting: new TimeBasedCanaryTrafficRouting({
+        interval: Duration.minutes(5),
+        percentage: 50,
+      }),
+    });
+
     new EcsDeploymentGroup(this, "DeploymentGroup", {
       deploymentGroupName: `${namePrefix}-deployment-group`,
       application: application,
       service: ecsService,
       blueGreenDeploymentConfig: {
-        deploymentApprovalWaitTime: Duration.minutes(30),
+        deploymentApprovalWaitTime: Duration.minutes(60),
         terminationWaitTime: Duration.minutes(5),
         blueTargetGroup: blueTargetGroup,
         greenTargetGroup: greenTargetGroup,
         listener: blueListener,
         testListener: greenListener,
       },
+      deploymentConfig: deploymentConfig,
       autoRollback: {
         failedDeployment: true,
       },

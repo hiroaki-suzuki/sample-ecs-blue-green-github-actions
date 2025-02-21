@@ -1,0 +1,39 @@
+name: AWS CodeDeploy Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: install dependencies
+        run: npm ci
+        with:
+          working-directory: ./cdk
+
+      - name: cdk deploy
+        run: npm run cdk:deploy:dev -- --require-approval never
+
+      - name: CodeDeployでデプロイ開始
+        run: |
+          aws deploy create-deployment \
+            --application-name s-ecs-blue-green-ga-application \
+            --deployment-group-name s-ecs-blue-green-ga-deployment-group \
+            --deployment-config-name s-ecs-blue-green-ga-deployment-config
