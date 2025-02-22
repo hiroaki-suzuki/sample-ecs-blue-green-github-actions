@@ -23,9 +23,6 @@ import {
   Role,
   ServicePrincipal,
 } from "aws-cdk-lib/aws-iam";
-import { DockerImageAsset, Platform } from "aws-cdk-lib/aws-ecr-assets";
-import * as path from "node:path";
-import { DockerImageName, ECRDeployment } from "cdk-ecr-deployment";
 
 export interface EcsProps {
   readonly namePrefix: string;
@@ -68,19 +65,6 @@ export class Ecs extends Construct {
     );
 
     this.service = this.createService(namePrefix, cluster, taskDefinition, securityGroup);
-  }
-
-  private deployImage(namePrefix: string, repository: Repository, ecrTag: string): void {
-    const image = new DockerImageAsset(this, "AppImage", {
-      assetName: `${namePrefix}-app-image`,
-      directory: path.join(__dirname, "..", "..", "..", "..", "app"),
-      platform: Platform.LINUX_AMD64,
-    });
-
-    new ECRDeployment(this, `${namePrefix}-app-ecr-deploy`, {
-      src: new DockerImageName(image.imageUri),
-      dest: new DockerImageName(`${repository.repositoryUri}:${ecrTag}`),
-    });
   }
 
   private createCluster(namePrefix: string, vpc: IVpc): Cluster {

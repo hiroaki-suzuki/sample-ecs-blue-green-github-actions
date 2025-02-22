@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
-import { CdkStack } from "../lib/cdk-stack";
+import { AppStack } from "../lib/app-stack";
 import { EnvValues } from "../lib/modules/env/env-values";
 import { EcrStack } from "../lib/ecr-stack";
 
@@ -32,7 +32,7 @@ const ecrStack = new EcrStack(app, `${namePrefix}-ecr`, {
   envValues,
 });
 
-new CdkStack(app, namePrefix, {
+new AppStack(app, `${namePrefix}-app`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: "ap-northeast-1",

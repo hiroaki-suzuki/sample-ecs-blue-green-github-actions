@@ -17,7 +17,7 @@ export interface CdkStackProps extends cdk.StackProps {
   readonly commitId: string;
 }
 
-export class CdkStack extends cdk.Stack {
+export class AppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CdkStackProps) {
     super(scope, id, props);
 

@@ -19,6 +19,15 @@ jobs:
         with:
           node-version: '22'
 
+      - name: cache npm dependencies
+        uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: ~/.npm
+          key: cdk-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            cdk-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
       - name: install dependencies
         run: npm ci
         working-directory: ./cdk
@@ -30,41 +39,55 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-1
 
-      - name: deploy ecr
+      - name: deploy ecr stack
         run: |
+          # deploy ecr stack
           npm run cdk -- deploy ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-ecr \
             -c environment=dev \
             -c projectName=${{ env.PROJECT_NAME }} \
             --require-approval never
         working-directory: ./cdk
 
-      - name: output ecr repository uri
-        id: ecr-output
-        run: |
-          repositoryName=$(jq -r '.["s-ecs-blue-green-ga-dev-ecr"].RepositoryName' outputs.json)
-          echo "repositoryName=$repositoryName" >> "$GITHUB_OUTPUT"
-        working-directory: ./cdk
-
       - name: login to ecr
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Set short SHA
-        run: echo "SHORT_SHA=${GITHUB_SHA:0:6}" >> "$GITHUB_ENV"
+      - name: output ecr repository name
+        id: output-repository-name
+        run: |
+          # output ecr repository name
+          repositoryName=$(jq -r '.["s-ecs-blue-green-ga-dev-ecr"].RepositoryName' outputs.json)
+          echo "repository-name=$repositoryName" >> "$GITHUB_OUTPUT"
+        working-directory: ./cdk
+
+      - name: output commit id
+        id: output-commit-id
+        run: |
+          # output commit id
+          echo "commit-id=${GITHUB_SHA:0:6}" >> "$GITHUB_OUTPUT"
 
       - name: build, tag, and push image to ecr
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{  steps.ecr-output.outputs.repositoryName }}
-          IMAGE_TAG: ${{ env.SHORT_SHA }}
+          ECR_REPOSITORY: ${{  steps.output-repository-name.outputs.repository-name }}
+          IMAGE_TAG: ${{ steps.output-commit-id.outputs.commit-id }}
         run: |
+          # build, tag, and push image to ecr
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
         working-directory: ./app
-#
-#
+
+      - name: deploy app stack
+        run: |
+          # deploy app stack
+          npm run cdk -- deploy ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app \
+            -c environment=dev \
+            -c projectName=${{ env.PROJECT_NAME }} \
+            --require-approval never
+        working-directory: ./cdk
+
 #      - name: Deploy to Amazon ECS
 #        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
 #        with:
