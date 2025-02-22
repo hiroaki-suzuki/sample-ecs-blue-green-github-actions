@@ -65,7 +65,7 @@ jobs:
         run: |
           # output ecr repository name
           repositoryName=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-ecr"].RepositoryName' outputs.json)
-          echo "repository-name=$repositoryName" >> "$GITHUB_OUTPUT"
+          echo "repository-name=${repositoryName}" >> "$GITHUB_OUTPUT"
         working-directory: ./cdk
 
       - name: Set up Docker Buildx
@@ -94,44 +94,34 @@ jobs:
             --require-approval never
         working-directory: ./cdk
 
-#      - name: output task definition family
-#        id: output-task-definition-family
-#        run: |
-#          # output task definition family
-#          ecsTaskDefinitionFamily=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-ecr"].EcsTaskDefinitionFamily' outputs.json)
-#          echo "task-definition-family=$ecsTaskDefinitionFamily" >> "$GITHUB_OUTPUT"
-#        working-directory: ./cdk
-#
-#      - name: create task-definition.json
-#        run: |
-#          # create task-definition.json
-#          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ steps.output-task-definition-family.outputs.task-definition-family }} --query taskDefinition)
-#          echo $TASK_DEFINITION > task-definition.json
-#          ls -al
-#          cat task-definition.json
-#
-#      - name: Deploy to Amazon ECS
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-#        with:
-#          task-definition: task-definition.json
-#          service: my-service
-#          cluster: my-cluster
-#          wait-for-service-stability: true
-#          codedeploy-appspec: appspec.json
-#          codedeploy-application: my-codedeploy-application
-#          codedeploy-deployment-group: my-codedeploy-deployment-group
-#      - name: Deploy to Amazon ECS
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-#        with:
-#          task-definition: task-definition.json
-#          service: my-service
-#          cluster: my-cluster
-#
-#          wait-for-service-stability: true
-#      - name: CodeDeployでデプロイ開始
-#        run: |
-#          aws deploy create-deployment \
-#            --application-name s-ecs-blue-green-ga-dev-application \
-#            --deployment-group-name s-ecs-blue-green-ga-dev-deployment-group \
-#            --deployment-config-name s-ecs-blue-green-ga-dev-deployment-config \
-#            --github-location repository=${{github.repository}},commitId=${{github.sha}}
+      - name: Generate appspec.yaml
+        run: |
+          # Generate appspec.yaml
+          taskDefinitionArn=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app"].EcsTaskDefinitionArn' outputs.json)
+          appContainerName=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app"].EcsAppContainerName' outputs.json)
+          
+          cat <<EOF > appspec.yaml
+          version: 0.0
+          Resources:
+            - TargetService:
+                Type: AWS::ECS::Service
+                Properties:
+                  TaskDefinition: "${taskDefinitionArn}"
+                  LoadBalancerInfo:
+                    ContainerName: "${appContainerName}"
+                    ContainerPort: 3000
+          EOF
+
+      - name: deploy app with AWS CodeDeploy
+        run: |
+          # deploy app with AWS CodeDeploy
+          applicationName=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app"].CodeDeployApplicationName' outputs.json)
+          deploymentConfigName=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app"].CodeDeployDeploymentConfigName' outputs.json)
+          deploymentGroupName=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app"].CodeDeployDeploymentGroupName' outputs.json)
+          appspec=$(cat app/appspec.yaml)
+          
+          aws deploy create-deployment \
+            --application-name "${applicationName}" \
+            --deployment-group-name "${deploymentConfigName}" \
+            --deployment-config-name "${deploymentGroupName}" \
+            --revision revisionType=AppSpecContent,appSpecContent={content="${appspec}"}

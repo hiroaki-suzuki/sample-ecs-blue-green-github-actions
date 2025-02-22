@@ -54,7 +54,7 @@ export class AppStack extends cdk.Stack {
       ecsService: ecs.service,
     });
 
-    new EcsCodeDeploy(this, "EcsCodeDeploy", {
+    const codeDeploy = new EcsCodeDeploy(this, "EcsCodeDeploy", {
       namePrefix,
       envValues,
       ecsService: ecs.service,
@@ -64,19 +64,24 @@ export class AppStack extends cdk.Stack {
       greenListener: loadBalancer.greenListener,
     });
 
-    new CfnOutput(this, "EcsClusterName", {
-      exportName: "EcsClusterName",
-      value: ecs.cluster.clusterName,
+    new CfnOutput(this, "EcsTaskDefinitionArn", {
+      exportName: "EcsTaskDefinitionArn",
+      value: ecs.taskDefinition.taskDefinitionArn,
     });
 
-    new CfnOutput(this, "EcsServiceName", {
-      exportName: "EcsServiceName",
-      value: ecs.service.serviceName,
+    new CfnOutput(this, "CodeDeployApplicationName", {
+      exportName: "CodeDeployApplicationName",
+      value: codeDeploy.application.applicationName,
     });
 
-    new CfnOutput(this, "EcsTaskDefinitionFamily", {
-      exportName: "EcsTaskDefinitionFamily",
-      value: ecs.taskDefinition.family,
+    new CfnOutput(this, "CodeDeployDeploymentConfigName", {
+      exportName: "CodeDeployDeploymentConfigName",
+      value: codeDeploy.deploymentConfig.deploymentConfigName,
+    });
+
+    new CfnOutput(this, "CodeDeployDeploymentGroupName", {
+      exportName: "CodeDeployDeploymentGroupName",
+      value: codeDeploy.deploymentGroup.deploymentGroupName,
     });
 
     setRemovalPolicy(this, RemovalPolicy.DESTROY);

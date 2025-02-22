@@ -25,6 +25,10 @@ export interface EcsCodeDeployProps {
 }
 
 export class EcsCodeDeploy extends Construct {
+  public readonly application: EcsApplication;
+  public readonly deploymentConfig: EcsDeploymentConfig;
+  public readonly deploymentGroup: EcsDeploymentGroup;
+
   constructor(scope: Construct, id: string, props: EcsCodeDeployProps) {
     super(scope, id);
 
