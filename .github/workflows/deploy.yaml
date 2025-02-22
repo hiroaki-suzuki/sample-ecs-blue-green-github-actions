@@ -123,7 +123,7 @@ jobs:
           
           aws deploy create-deployment \
             --application-name "${applicationName}" \
-            --deployment-group-name "${deploymentConfigName}" \
-            --deployment-config-name "${deploymentGroupName}" \
+            --deployment-group-name "${deploymentGroupName}" \
+            --deployment-config-name "${deploymentConfigName}" \
             --revision revisionType=AppSpecContent,appSpecContent={content="${appspec}"}
         working-directory: ./cdk
