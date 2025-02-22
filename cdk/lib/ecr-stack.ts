@@ -5,6 +5,7 @@ import { Ecr } from "./modules/app/ecr";
 import { setRemovalPolicy } from "./modules/aspect/removal-policy-setter";
 import { addCommonTags } from "./modules/aspect/common-tag-setter";
 import { EnvValues } from "./modules/env/env-values";
+import * as changeCase from "change-case";
 
 export interface EcrStackProps extends cdk.StackProps {
   readonly namePrefix: string;
@@ -27,12 +28,12 @@ export class EcrStack extends cdk.Stack {
 
     this.repositoryUri = ecr.repository.repositoryUri;
     this.exportValue(this.repositoryUri, {
-      name: `${namePrefix}-uri`,
+      name: changeCase.pascalCase(`${namePrefix}-uri`),
     });
 
     this.repositoryName = ecr.repository.repositoryName;
     this.exportValue(this.repositoryName, {
-      name: `${namePrefix}-name`,
+      name: changeCase.pascalCase(`${namePrefix}-name`),
     });
 
     setRemovalPolicy(this, RemovalPolicy.DESTROY);
