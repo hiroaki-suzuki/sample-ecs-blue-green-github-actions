@@ -33,6 +33,7 @@ jobs:
         run: |
           npm run cdk -- deploy ${{ env.PROJECT_NAME }}-ecr \
             -c environment=dev \
+            -c projectName=${{ env.PROJECT_NAME }} \
             --require-approval never
         working-directory: ./cdk
 
