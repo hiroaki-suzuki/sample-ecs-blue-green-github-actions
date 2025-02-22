@@ -47,11 +47,11 @@ export class EcsCodeDeploy extends Construct {
       managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName("AWSCodeDeployFullAccess")],
     });
 
-    const application = new EcsApplication(this, "Application", {
+    this.application = new EcsApplication(this, "Application", {
       applicationName: `${namePrefix}-application`,
     });
 
-    const deploymentConfig = new EcsDeploymentConfig(this, "DeploymentConfig", {
+    this.deploymentConfig = new EcsDeploymentConfig(this, "DeploymentConfig", {
       deploymentConfigName: `${namePrefix}-deployment-config`,
       trafficRouting: new TimeBasedCanaryTrafficRouting({
         interval: Duration.minutes(5),
@@ -59,9 +59,9 @@ export class EcsCodeDeploy extends Construct {
       }),
     });
 
-    new EcsDeploymentGroup(this, "DeploymentGroup", {
+    this.deploymentGroup = new EcsDeploymentGroup(this, "DeploymentGroup", {
       deploymentGroupName: `${namePrefix}-deployment-group`,
-      application: application,
+      application: this.application,
       service: ecsService,
       blueGreenDeploymentConfig: {
         deploymentApprovalWaitTime: Duration.minutes(60),
@@ -71,7 +71,7 @@ export class EcsCodeDeploy extends Construct {
         listener: blueListener,
         testListener: greenListener,
       },
-      deploymentConfig: deploymentConfig,
+      deploymentConfig: this.deploymentConfig,
       autoRollback: {
         failedDeployment: true,
       },
