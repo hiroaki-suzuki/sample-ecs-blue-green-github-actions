@@ -31,7 +31,7 @@ jobs:
 
       - name: deploy ecr
         run: |
-          npm run cdk deploy ${{ PROJECT_NAME }}-ecr \
+          npm run cdk deploy ${{ env.PROJECT_NAME }}-ecr \
             -c environment=dev \
             --require-approval never
         working-directory: ./cdk
