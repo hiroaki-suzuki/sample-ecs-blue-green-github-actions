@@ -119,7 +119,7 @@ jobs:
           applicationName=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app"].CodeDeployApplicationName' outputs.json)
           deploymentConfigName=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app"].CodeDeployDeploymentConfigName' outputs.json)
           deploymentGroupName=$(jq -r '.["${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-app"].CodeDeployDeploymentGroupName' outputs.json)
-          appspec=$(cat app/appspec.yaml)
+          appspec=$(cat appspec.yaml)
           
           aws deploy create-deployment \
             --application-name "${applicationName}" \
