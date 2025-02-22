@@ -54,8 +54,8 @@ export class EcsCodeDeploy extends Construct {
     this.deploymentConfig = new EcsDeploymentConfig(this, "DeploymentConfig", {
       deploymentConfigName: `${namePrefix}-deployment-config`,
       trafficRouting: new TimeBasedCanaryTrafficRouting({
-        interval: Duration.minutes(5),
-        percentage: 50,
+        interval: Duration.minutes(2),
+        percentage: 100,
       }),
     });
 
