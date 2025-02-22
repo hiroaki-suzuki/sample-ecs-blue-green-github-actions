@@ -13,13 +13,15 @@ import { EcsCodeDeploy } from "./modules/code-deploy";
 export interface CdkStackProps extends cdk.StackProps {
   readonly namePrefix: string;
   readonly envValues: EnvValues;
+  readonly ecrRepositoryArn: string;
+  readonly commitId: string;
 }
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CdkStackProps) {
     super(scope, id, props);
 
-    const { namePrefix, envValues } = props;
+    const { namePrefix, envValues, ecrRepositoryArn, commitId } = props;
 
     // ネットワークの作成
     const network = new Network(this, "Network", {
@@ -34,21 +36,13 @@ export class CdkStack extends cdk.Stack {
       vpc: network.vpc,
     });
 
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-
-    const ecrTag = `${year}${month}${day}${hours}${minutes}${seconds}`;
     // ECSの作成
     const ecs = new Ecs(this, "Ecs", {
       namePrefix,
       vpc: network.vpc,
       securityGroup: securityGroup.ecsSecurityGroup,
-      ecrTag: ecrTag,
+      commitId: commitId,
+      ecrRepositoryArn: ecrRepositoryArn,
     });
 
     // ALBの作成

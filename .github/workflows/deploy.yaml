@@ -27,13 +27,45 @@ jobs:
         run: npm ci
         working-directory: ./cdk
 
-      - name: cdk deploy
-        run: npm run cdk:deploy:dev -- --require-approval never
+      - name: deploy ecr
+        run: npm run deploy:ecr:dev -- --require-approval never
+        working-directory: ./cdk
 
-      - name: CodeDeployでデプロイ開始
+      - name: output ecr repository uri
+        id: ecr-output
         run: |
-          aws deploy create-deployment \
-            --application-name s-ecs-blue-green-ga-dev-application \
-            --deployment-group-name s-ecs-blue-green-ga-dev-deployment-group \
-            --deployment-config-name s-ecs-blue-green-ga-dev-deployment-config \
-            --github-location repository=${{github.repository}},commitId=${{github.sha}}
+          ls -al .cdk.out
+          echo "ecr_repository_uri=$(cdk deploy --app 'npx ts-node bin/cdk.ts' --require-approval never | grep 'ECRRepositoryArn' | awk '{print $3}')" >> $GITHUB_ENV
+        working-directory: ./cdk
+
+      - name: login to ecr
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+#      - name: build, tag, and push image to ecr
+#        id: build-image
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          ECR_REPOSITORY: my-ecr-repo
+#          IMAGE_TAG: ${{ github.sha }}
+#        run: |
+#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#
+#
+#      - name: Deploy to Amazon ECS
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+#        with:
+#          task-definition: task-definition.json
+#          service: my-service
+#          cluster: my-cluster
+#
+#          wait-for-service-stability: true
+#      - name: CodeDeployでデプロイ開始
+#        run: |
+#          aws deploy create-deployment \
+#            --application-name s-ecs-blue-green-ga-dev-application \
+#            --deployment-group-name s-ecs-blue-green-ga-dev-deployment-group \
+#            --deployment-config-name s-ecs-blue-green-ga-dev-deployment-config \
+#            --github-location repository=${{github.repository}},commitId=${{github.sha}}

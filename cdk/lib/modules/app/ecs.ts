@@ -12,7 +12,6 @@ import {
   TaskDefinition,
 } from "aws-cdk-lib/aws-ecs";
 import { Repository } from "aws-cdk-lib/aws-ecr";
-import { RemovalPolicy } from "aws-cdk-lib";
 import { IVpc, SecurityGroup } from "aws-cdk-lib/aws-ec2";
 import { BaseLogGroup } from "../base/base-log-group";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
@@ -32,7 +31,8 @@ export interface EcsProps {
   readonly namePrefix: string;
   readonly vpc: IVpc;
   readonly securityGroup: SecurityGroup;
-  readonly ecrTag: string;
+  readonly commitId: string;
+  readonly ecrRepositoryArn: string;
 }
 
 export class Ecs extends Construct {
@@ -41,13 +41,7 @@ export class Ecs extends Construct {
   constructor(scope: Construct, id: string, props: EcsProps) {
     super(scope, id);
 
-    const { namePrefix, vpc, securityGroup, ecrTag } = props;
-
-    // リポジトリの作成
-    const repository = this.createRepository(namePrefix);
-
-    // イメージのデプロイ
-    this.deployImage(namePrefix, repository, ecrTag);
+    const { namePrefix, vpc, securityGroup, commitId, ecrRepositoryArn } = props;
 
     // クラスターの作成
     const cluster = this.createCluster(namePrefix, vpc);
@@ -65,18 +59,15 @@ export class Ecs extends Construct {
     const taskDefinition = this.createFargateTaskDefinition(namePrefix, taskRole, executionRole);
 
     // コンテナ定義の作成
-    this.createContainerDefinition(namePrefix, taskDefinition, repository, logGroup, ecrTag);
+    this.createContainerDefinition(
+      namePrefix,
+      taskDefinition,
+      ecrRepositoryArn,
+      logGroup,
+      commitId,
+    );
 
     this.service = this.createService(namePrefix, cluster, taskDefinition, securityGroup);
-  }
-
-  private createRepository(namePrefix: string): Repository {
-    return new Repository(this, "Repository", {
-      repositoryName: `${namePrefix}-repository`,
-      removalPolicy: RemovalPolicy.DESTROY,
-      emptyOnDelete: true,
-      imageScanOnPush: true,
-    });
   }
 
   private deployImage(namePrefix: string, repository: Repository, ecrTag: string): void {
@@ -155,15 +146,17 @@ export class Ecs extends Construct {
   private createContainerDefinition(
     namePrefix: string,
     taskDefinition: TaskDefinition,
-    repository: Repository,
+    ecrRepositoryArn: string,
     logGroup: LogGroup,
-    ecrTag: string,
+    commitId: string,
   ): ContainerDefinition {
     // バッチ
+    const repository = Repository.fromRepositoryArn(this, "Repository", ecrRepositoryArn);
+
     return new ContainerDefinition(this, "BatchContainerDefinition", {
       taskDefinition,
       containerName: `${namePrefix}-container`,
-      image: ContainerImage.fromEcrRepository(repository, ecrTag),
+      image: ContainerImage.fromEcrRepository(repository, commitId),
       cpu: 1024,
       memoryReservationMiB: 2048,
       memoryLimitMiB: 2048,

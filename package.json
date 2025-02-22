@@ -2,9 +2,7 @@
   "name": "sample-ecs-blue-green-github-actions",
   "version": "1.0.0",
   "scripts": {
-    "start": "node app/main.js",
-    "cdk:deploy:dev": "cd cdk && npm run cdk -- deploy -c environment=dev",
-    "cdk:destroy:dev": "cd cdk && npm run cdk -- destroy -c environment=dev"
+    "start": "node app/main.js"
   },
   "devDependencies": {
     "prettier": "3.5.1"
