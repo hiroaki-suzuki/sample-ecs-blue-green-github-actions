@@ -106,9 +106,9 @@ jobs:
             - TargetService:
                 Type: AWS::ECS::Service
                 Properties:
-                  TaskDefinition: "${taskDefinitionArn}"
+                  TaskDefinition: ${taskDefinitionArn}
                   LoadBalancerInfo:
-                    ContainerName: "${appContainerName}"
+                    ContainerName: ${appContainerName}
                     ContainerPort: 3000
           EOF
         working-directory: ./cdk
