@@ -14,6 +14,9 @@ if (!projectName) {
 
 // コンテナイメージのタグ
 const imageTag = app.node.tryGetContext("imageTag");
+if (!imageTag) {
+  throw new Error("imageTag is not defined.");
+}
 
 // 環境変数の取得
 const envKey = app.node.tryGetContext("environment");

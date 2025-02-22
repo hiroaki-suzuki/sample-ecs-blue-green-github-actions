@@ -40,12 +40,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-1
 
+      - name: output image tag
+        id: output-image-tag
+        run: |
+          # output image tag
+          echo "image-tag=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
       - name: deploy ecr stack
         run: |
           # deploy ecr stack
           npm run cdk -- deploy ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-ecr \
             -c environment=dev \
             -c projectName=${{ env.PROJECT_NAME }} \
+            -c imageTag=${{ steps.output-image-tag.outputs.image-tag }} \
             --require-approval never
         working-directory: ./cdk
 
@@ -61,11 +68,6 @@ jobs:
           echo "repository-name=$repositoryName" >> "$GITHUB_OUTPUT"
         working-directory: ./cdk
 
-      - name: output image tag
-        id: output-image-tag
-        run: |
-          # output image tag
-          echo "image-tag=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
       #      - name: build, tag, and push image to ecr
       #        id: build-image
