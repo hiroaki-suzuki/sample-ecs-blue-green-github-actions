@@ -42,7 +42,7 @@ jobs:
         id: ecr-output
         run: |
           repositoryName=(jq '.["s-ecs-blue-green-ga-dev-ecr"].RepositoryName' outputs.json)
-          echo "repositoryName=${{ repositoryName }}" > "$GITHUB_OUTPUT"
+          echo "repositoryName=$repositoryName" > "$GITHUB_OUTPUT"
         working-directory: ./cdk
 
       - name: login to ecr
