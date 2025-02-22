@@ -5,7 +5,8 @@ on:
     branches:
       - main
 env:
-  PROJECT_NAME: s-ecs-blue-green-ga-dev
+  PROJECT_NAME: s-ecs-blue-green-ga
+  ENVIRONMENT: dev
 
 jobs:
   deploy:
@@ -31,7 +32,7 @@ jobs:
 
       - name: deploy ecr
         run: |
-          npm run cdk -- deploy ${{ env.PROJECT_NAME }}-ecr \
+          npm run cdk -- deploy ${{ env.PROJECT_NAME }}-${{ ENVIRONMENT }}-ecr \
             -c environment=dev \
             -c projectName=${{ env.PROJECT_NAME }} \
             --require-approval never
