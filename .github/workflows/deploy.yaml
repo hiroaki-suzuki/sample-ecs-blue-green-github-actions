@@ -32,7 +32,7 @@ jobs:
 
       - name: deploy ecr
         run: |
-          npm run cdk -- deploy ${{ env.PROJECT_NAME }}-${{ ENVIRONMENT }}-ecr \
+          npm run cdk -- deploy ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-ecr \
             -c environment=dev \
             -c projectName=${{ env.PROJECT_NAME }} \
             --require-approval never
