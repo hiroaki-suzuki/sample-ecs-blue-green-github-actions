@@ -110,6 +110,7 @@ jobs:
                   LoadBalancerInfo:
                     ContainerName: ${appContainerName}
                     ContainerPort: 3000
+                  PlatformVersion: "LATEST"
           EOF
         working-directory: ./cdk
 
