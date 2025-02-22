@@ -111,6 +111,7 @@ jobs:
                     ContainerName: "${appContainerName}"
                     ContainerPort: 3000
           EOF
+        working-directory: ./cdk
 
       - name: deploy app with AWS CodeDeploy
         run: |
@@ -125,3 +126,4 @@ jobs:
             --deployment-group-name "${deploymentConfigName}" \
             --deployment-config-name "${deploymentGroupName}" \
             --revision revisionType=AppSpecContent,appSpecContent={content="${appspec}"}
+        working-directory: ./cdk
