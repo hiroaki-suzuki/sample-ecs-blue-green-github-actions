@@ -69,6 +69,11 @@ export class AppStack extends cdk.Stack {
       value: ecs.taskDefinition.taskDefinitionArn,
     });
 
+    new CfnOutput(this, "EcsAppContainerName", {
+      exportName: "EcsAppContainerName",
+      value: ecs.containerDefinition.containerName,
+    });
+
     new CfnOutput(this, "CodeDeployApplicationName", {
       exportName: "CodeDeployApplicationName",
       value: codeDeploy.application.applicationName,

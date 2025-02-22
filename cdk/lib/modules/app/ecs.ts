@@ -36,6 +36,7 @@ export class Ecs extends Construct {
   public readonly cluster: Cluster;
   public readonly service: FargateService;
   public readonly taskDefinition: TaskDefinition;
+  public readonly containerDefinition: ContainerDefinition;
 
   constructor(scope: Construct, id: string, props: EcsProps) {
     super(scope, id);
@@ -58,7 +59,7 @@ export class Ecs extends Construct {
     this.taskDefinition = this.createFargateTaskDefinition(namePrefix, taskRole, executionRole);
 
     // コンテナ定義の作成
-    this.createContainerDefinition(
+    this.containerDefinition = this.createContainerDefinition(
       namePrefix,
       this.taskDefinition,
       ecrRepositoryName,
