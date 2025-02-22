@@ -7,7 +7,6 @@ RUN apt-get update \
 WORKDIR /usr/src/app
 COPY ./ ./
 RUN npm ci
-RUN ls -la
 
 USER node
 CMD ["npm", "run", "dev"]

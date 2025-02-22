@@ -6,17 +6,14 @@ import { EcrStack } from "../lib/ecr-stack";
 
 const app = new cdk.App();
 
-// プロジェクト名、リソース名のプレフィックスとして利用
+// プロジェクト名、リソース名のプレフィックス
 const projectName = app.node.tryGetContext("projectName");
 if (!projectName) {
   throw new Error("projectName is not defined.");
 }
 
-// コミットID、コンテナイメージのタグとして利用
-const commitId = process.env.GITHUB_SHA?.slice(0, 7);
-if (!commitId) {
-  throw new Error("GITHUB_SHA is not defined.");
-}
+// コンテナイメージのタグ
+const imageTag = app.node.tryGetContext("imageTag");
 
 // 環境変数の取得
 const envKey = app.node.tryGetContext("environment");
@@ -40,5 +37,5 @@ new AppStack(app, `${namePrefix}-app`, {
   namePrefix,
   envValues,
   ecrRepositoryName: ecrStack.repositoryName,
-  commitId,
+  imageTag,
 });

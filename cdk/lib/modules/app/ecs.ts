@@ -28,7 +28,7 @@ export interface EcsProps {
   readonly namePrefix: string;
   readonly vpc: IVpc;
   readonly securityGroup: SecurityGroup;
-  readonly commitId: string;
+  readonly imageTag: string;
   readonly ecrRepositoryName: string;
 }
 
@@ -38,7 +38,7 @@ export class Ecs extends Construct {
   constructor(scope: Construct, id: string, props: EcsProps) {
     super(scope, id);
 
-    const { namePrefix, vpc, securityGroup, commitId, ecrRepositoryName } = props;
+    const { namePrefix, vpc, securityGroup, imageTag, ecrRepositoryName } = props;
 
     // クラスターの作成
     const cluster = this.createCluster(namePrefix, vpc);
@@ -61,7 +61,7 @@ export class Ecs extends Construct {
       taskDefinition,
       ecrRepositoryName,
       logGroup,
-      commitId,
+      imageTag,
     );
 
     this.service = this.createService(namePrefix, cluster, taskDefinition, securityGroup);
@@ -132,7 +132,7 @@ export class Ecs extends Construct {
     taskDefinition: TaskDefinition,
     ecrRepositoryName: string,
     logGroup: LogGroup,
-    commitId: string,
+    imageTag: string,
   ): ContainerDefinition {
     // バッチ
     const repository = Repository.fromRepositoryName(this, "Repository", ecrRepositoryName);
@@ -140,7 +140,7 @@ export class Ecs extends Construct {
     return new ContainerDefinition(this, "BatchContainerDefinition", {
       taskDefinition,
       containerName: `${namePrefix}-container`,
-      image: ContainerImage.fromEcrRepository(repository, commitId),
+      image: ContainerImage.fromEcrRepository(repository, imageTag),
       cpu: 1024,
       memoryReservationMiB: 2048,
       memoryLimitMiB: 2048,

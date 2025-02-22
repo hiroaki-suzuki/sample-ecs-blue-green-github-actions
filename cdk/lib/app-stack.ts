@@ -14,14 +14,18 @@ export interface CdkStackProps extends cdk.StackProps {
   readonly namePrefix: string;
   readonly envValues: EnvValues;
   readonly ecrRepositoryName: string;
-  readonly commitId: string;
+  readonly imageTag: string | undefined;
 }
 
 export class AppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CdkStackProps) {
     super(scope, id, props);
 
-    const { namePrefix, envValues, ecrRepositoryName, commitId } = props;
+    const { namePrefix, envValues, ecrRepositoryName, imageTag } = props;
+
+    if (!imageTag) {
+      throw new Error("imageTag is not defined.");
+    }
 
     // ネットワークの作成
     const network = new Network(this, "Network", {
@@ -41,7 +45,7 @@ export class AppStack extends cdk.Stack {
       namePrefix,
       vpc: network.vpc,
       securityGroup: securityGroup.ecsSecurityGroup,
-      commitId: commitId,
+      imageTag: imageTag,
       ecrRepositoryName: ecrRepositoryName,
     });
 
