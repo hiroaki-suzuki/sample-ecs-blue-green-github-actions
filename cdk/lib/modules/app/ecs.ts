@@ -33,7 +33,9 @@ export interface EcsProps {
 }
 
 export class Ecs extends Construct {
+  public readonly cluster: Cluster;
   public readonly service: FargateService;
+  public readonly taskDefinition: TaskDefinition;
 
   constructor(scope: Construct, id: string, props: EcsProps) {
     super(scope, id);
@@ -41,7 +43,7 @@ export class Ecs extends Construct {
     const { namePrefix, vpc, securityGroup, imageTag, ecrRepositoryName } = props;
 
     // クラスターの作成
-    const cluster = this.createCluster(namePrefix, vpc);
+    this.cluster = this.createCluster(namePrefix, vpc);
 
     // ロググループの作成
     const logGroup = this.createLogGroup(namePrefix);
@@ -53,18 +55,18 @@ export class Ecs extends Construct {
     const executionRole = this.createExecutionTole(namePrefix);
 
     // タスク定義の作成
-    const taskDefinition = this.createFargateTaskDefinition(namePrefix, taskRole, executionRole);
+    this.taskDefinition = this.createFargateTaskDefinition(namePrefix, taskRole, executionRole);
 
     // コンテナ定義の作成
     this.createContainerDefinition(
       namePrefix,
-      taskDefinition,
+      this.taskDefinition,
       ecrRepositoryName,
       logGroup,
       imageTag,
     );
 
-    this.service = this.createService(namePrefix, cluster, taskDefinition, securityGroup);
+    this.service = this.createService(namePrefix, this.cluster, this.taskDefinition, securityGroup);
   }
 
   private createCluster(namePrefix: string, vpc: IVpc): Cluster {

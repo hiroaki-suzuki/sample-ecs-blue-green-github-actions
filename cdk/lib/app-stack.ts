@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { RemovalPolicy } from "aws-cdk-lib";
+import { CfnOutput, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { EnvValues } from "./modules/env/env-values";
 import { setRemovalPolicy } from "./modules/aspect/removal-policy-setter";
@@ -62,6 +62,21 @@ export class AppStack extends cdk.Stack {
       blueListener: loadBalancer.blueListener,
       greenTargetGroup: loadBalancer.greenTargetGroup,
       greenListener: loadBalancer.greenListener,
+    });
+
+    new CfnOutput(this, "EcsClusterName", {
+      exportName: "EcsClusterName",
+      value: ecs.cluster.clusterName,
+    });
+
+    new CfnOutput(this, "EcsServiceName", {
+      exportName: "EcsServiceName",
+      value: ecs.service.serviceName,
+    });
+
+    new CfnOutput(this, "EcsTaskDefinitionFamily", {
+      exportName: "EcsTaskDefinitionFamily",
+      value: ecs.taskDefinition.family,
     });
 
     setRemovalPolicy(this, RemovalPolicy.DESTROY);

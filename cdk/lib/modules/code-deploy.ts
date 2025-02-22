@@ -46,6 +46,7 @@ export class EcsCodeDeploy extends Construct {
     const application = new EcsApplication(this, "Application", {
       applicationName: `${namePrefix}-application`,
     });
+
     const deploymentConfig = new EcsDeploymentConfig(this, "DeploymentConfig", {
       deploymentConfigName: `${namePrefix}-deployment-config`,
       trafficRouting: new TimeBasedCanaryTrafficRouting({
