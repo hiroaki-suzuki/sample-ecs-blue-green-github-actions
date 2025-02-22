@@ -41,8 +41,7 @@ jobs:
       - name: output ecr repository uri
         id: ecr-output
         run: |
-          ls -al 
-          echo "ecr_repository_uri=$(cdk deploy --app 'npx ts-node bin/cdk.ts' --require-approval never | grep 'ECRRepositoryArn' | awk '{print $3}')" >> $GITHUB_ENV
+          cat outputs.json
         working-directory: ./cdk
 
       - name: login to ecr
