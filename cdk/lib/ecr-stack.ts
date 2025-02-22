@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { RemovalPolicy } from "aws-cdk-lib";
+import { CfnOutput, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { Ecr } from "./modules/app/ecr";
 import { setRemovalPolicy } from "./modules/aspect/removal-policy-setter";
@@ -13,7 +13,6 @@ export interface EcrStackProps extends cdk.StackProps {
 }
 
 export class EcrStack extends cdk.Stack {
-  public readonly repositoryUri: string;
   public readonly repositoryName: string;
 
   constructor(scope: Construct, id: string, props: EcrStackProps) {
@@ -26,14 +25,15 @@ export class EcrStack extends cdk.Stack {
       namePrefix,
     });
 
-    this.repositoryUri = ecr.repository.repositoryUri;
-    this.exportValue(this.repositoryUri, {
-      name: changeCase.pascalCase(`${namePrefix}-uri`),
+    new CfnOutput(this, "RepositoryUri", {
+      exportName: changeCase.pascalCase(`${namePrefix}-uri`),
+      value: ecr.repository.repositoryUri,
     });
 
     this.repositoryName = ecr.repository.repositoryName;
-    this.exportValue(this.repositoryName, {
-      name: changeCase.pascalCase(`${namePrefix}-name`),
+    new CfnOutput(this, "RepositoryName", {
+      exportName: changeCase.pascalCase(`${namePrefix}-name`),
+      value: this.repositoryName,
     });
 
     setRemovalPolicy(this, RemovalPolicy.DESTROY);
