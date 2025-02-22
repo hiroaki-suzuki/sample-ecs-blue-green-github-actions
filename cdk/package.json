@@ -8,9 +8,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk",
-    "deploy:ecr:dev": "npm run cdk -- deploy EcrStack -c environment=dev",
-    "deploy:app:dev": "npm run cdk -- deploy CdkStack -c environment=dev"
+    "cdk": "cdk"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

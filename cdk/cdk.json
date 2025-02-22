@@ -18,7 +18,6 @@
     ]
   },
   "context": {
-    "projectName": "s-ecs-blue-green-ga",
     "dev": {
       "env": "dev",
       "vpcCidr": "172.16.0.0/16"
