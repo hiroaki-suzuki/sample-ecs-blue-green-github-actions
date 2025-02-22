@@ -13,7 +13,7 @@ export interface EcrStackProps extends cdk.StackProps {
 
 export class EcrStack extends cdk.Stack {
   public readonly repositoryUri: string;
-  public readonly repositoryArn: string;
+  public readonly repositoryName: string;
 
   constructor(scope: Construct, id: string, props: EcrStackProps) {
     super(scope, id, props);
@@ -30,9 +30,9 @@ export class EcrStack extends cdk.Stack {
       name: `${namePrefix}-uri`,
     });
 
-    this.repositoryArn = ecr.repository.repositoryArn;
-    this.exportValue(this.repositoryArn, {
-      name: `${namePrefix}-arn`,
+    this.repositoryName = ecr.repository.repositoryName;
+    this.exportValue(this.repositoryName, {
+      name: `${namePrefix}-name`,
     });
 
     setRemovalPolicy(this, RemovalPolicy.DESTROY);

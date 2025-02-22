@@ -32,6 +32,6 @@ new CdkStack(app, namePrefix, {
   },
   namePrefix,
   envValues,
-  ecrRepositoryArn: ecrStack.repositoryArn,
+  ecrRepositoryName: ecrStack.repositoryName,
   commitId,
 });

@@ -13,7 +13,7 @@ import { EcsCodeDeploy } from "./modules/code-deploy";
 export interface CdkStackProps extends cdk.StackProps {
   readonly namePrefix: string;
   readonly envValues: EnvValues;
-  readonly ecrRepositoryArn: string;
+  readonly ecrRepositoryName: string;
   readonly commitId: string;
 }
 
@@ -21,7 +21,7 @@ export class CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CdkStackProps) {
     super(scope, id, props);
 
-    const { namePrefix, envValues, ecrRepositoryArn, commitId } = props;
+    const { namePrefix, envValues, ecrRepositoryName, commitId } = props;
 
     // ネットワークの作成
     const network = new Network(this, "Network", {
@@ -42,7 +42,7 @@ export class CdkStack extends cdk.Stack {
       vpc: network.vpc,
       securityGroup: securityGroup.ecsSecurityGroup,
       commitId: commitId,
-      ecrRepositoryArn: ecrRepositoryArn,
+      ecrRepositoryName: ecrRepositoryName,
     });
 
     // ALBの作成
