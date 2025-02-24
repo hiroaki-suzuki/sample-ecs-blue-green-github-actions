@@ -26,7 +26,7 @@ const Top: FC<{ messages: string[] }> = (props: { messages: string[] }) => {
 };
 
 app.get("/", (c) => {
-  const messages = ["Good Morning", "Good Evening", "Good Night", "Good Bye!!", "So Sweet!!"];
+  const messages = ["Good Morning", "Good Evening", "Good Night"];
   return c.html(<Top messages={messages} />);
 });
 
