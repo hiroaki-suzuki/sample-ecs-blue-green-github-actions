@@ -4,6 +4,7 @@ import {
   EcsApplication,
   EcsDeploymentConfig,
   EcsDeploymentGroup,
+  TimeBasedCanaryTrafficRouting,
 } from "aws-cdk-lib/aws-codedeploy";
 import { FargateService } from "aws-cdk-lib/aws-ecs";
 import {
@@ -12,7 +13,6 @@ import {
 } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Duration } from "aws-cdk-lib";
-import { AllAtOnceTrafficRouting } from "aws-cdk-lib/aws-codedeploy/lib/traffic-routing-config";
 
 export interface EcsCodeDeployProps {
   readonly namePrefix: string;
@@ -53,7 +53,10 @@ export class EcsCodeDeploy extends Construct {
 
     this.deploymentConfig = new EcsDeploymentConfig(this, "DeploymentConfig", {
       deploymentConfigName: `${namePrefix}-deployment-config`,
-      trafficRouting: new AllAtOnceTrafficRouting(),
+      trafficRouting: new TimeBasedCanaryTrafficRouting({
+        interval: Duration.minutes(2),
+        percentage: 50,
+      }),
     });
 
     this.deploymentGroup = new EcsDeploymentGroup(this, "DeploymentGroup", {
@@ -68,7 +71,8 @@ export class EcsCodeDeploy extends Construct {
         listener: blueListener,
         testListener: greenListener,
       },
-      deploymentConfig: this.deploymentConfig,
+      deploymentConfig: EcsDeploymentConfig.ALL_AT_ONCE,
+      // deploymentConfig: this.deploymentConfig,
       autoRollback: {
         failedDeployment: true,
       },
