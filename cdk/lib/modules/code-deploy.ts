@@ -12,6 +12,7 @@ import {
 } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Duration } from "aws-cdk-lib";
+import { IEcsDeploymentConfig } from "aws-cdk-lib/aws-codedeploy/lib/ecs/deployment-config";
 
 export interface EcsCodeDeployProps {
   readonly namePrefix: string;
@@ -25,7 +26,7 @@ export interface EcsCodeDeployProps {
 
 export class EcsCodeDeploy extends Construct {
   public readonly application: EcsApplication;
-  public readonly deploymentConfig: EcsDeploymentConfig;
+  public readonly deploymentConfig: IEcsDeploymentConfig;
   public readonly deploymentGroup: EcsDeploymentGroup;
 
   constructor(scope: Construct, id: string, props: EcsCodeDeployProps) {
@@ -57,6 +58,7 @@ export class EcsCodeDeploy extends Construct {
     //     percentage: 50,
     //   }),
     // });
+    this.deploymentConfig = EcsDeploymentConfig.ALL_AT_ONCE;
 
     this.deploymentGroup = new EcsDeploymentGroup(this, "DeploymentGroup", {
       deploymentGroupName: `${namePrefix}-deployment-group`,
@@ -70,8 +72,7 @@ export class EcsCodeDeploy extends Construct {
         listener: blueListener,
         testListener: greenListener,
       },
-      deploymentConfig: EcsDeploymentConfig.ALL_AT_ONCE,
-      // deploymentConfig: this.deploymentConfig,
+      deploymentConfig: this.deploymentConfig,
       autoRollback: {
         failedDeployment: true,
       },
