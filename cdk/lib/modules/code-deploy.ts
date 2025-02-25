@@ -4,7 +4,6 @@ import {
   EcsApplication,
   EcsDeploymentConfig,
   EcsDeploymentGroup,
-  TimeBasedCanaryTrafficRouting,
 } from "aws-cdk-lib/aws-codedeploy";
 import { FargateService } from "aws-cdk-lib/aws-ecs";
 import {
@@ -51,13 +50,13 @@ export class EcsCodeDeploy extends Construct {
       applicationName: `${namePrefix}-application`,
     });
 
-    this.deploymentConfig = new EcsDeploymentConfig(this, "DeploymentConfig", {
-      deploymentConfigName: `${namePrefix}-deployment-config`,
-      trafficRouting: new TimeBasedCanaryTrafficRouting({
-        interval: Duration.minutes(2),
-        percentage: 50,
-      }),
-    });
+    // this.deploymentConfig = new EcsDeploymentConfig(this, "DeploymentConfig", {
+    //   deploymentConfigName: `${namePrefix}-deployment-config`,
+    //   trafficRouting: new TimeBasedCanaryTrafficRouting({
+    //     interval: Duration.minutes(2),
+    //     percentage: 50,
+    //   }),
+    // });
 
     this.deploymentGroup = new EcsDeploymentGroup(this, "DeploymentGroup", {
       deploymentGroupName: `${namePrefix}-deployment-group`,
